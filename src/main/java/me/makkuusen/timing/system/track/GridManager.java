@@ -16,8 +16,6 @@ import java.util.UUID;
 
 public class GridManager {
 
-    private HashMap<UUID, ArmorStand> armorStands = new HashMap<>();
-
     public GridManager() {
     }
 
@@ -33,25 +31,15 @@ public class GridManager {
         if (player.getGameMode() == GameMode.SPECTATOR) {
             player.setGameMode(GameMode.SURVIVAL);
         }
-        ArmorStand ar = (ArmorStand) location.getWorld().spawnEntity(location.clone().add(0, -1.45, 0), EntityType.ARMOR_STAND);
-        ar.setCanMove(false);
-        ar.setGravity(false);
-        ar.setVisible(false);
+
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
             Boat boat = ApiUtilities.spawnBoatAndAddPlayer(player, location);
-            ar.addPassenger(boat);
-            armorStands.put(player.getUniqueId(), ar);
         }, 2);
     }
 
     public void startPlayerFromGrid(UUID uuid) {
-        ArmorStand ar = armorStands.get(uuid);
-        if (ar != null) {
-            ar.remove();
-        }
     }
 
     public void clearArmorstands(){
-        armorStands.values().stream().forEach(armorStand -> armorStand.remove());
     }
 }

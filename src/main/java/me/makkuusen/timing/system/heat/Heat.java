@@ -128,11 +128,11 @@ public class Heat {
         return true;
     }
 
-    public boolean startCountdown() {
+    public boolean startCountdown(Integer countdown) {
         if (getHeatState() != HeatState.LOADED) {
             return false;
         }
-        TaskChainCountdown.countdown(this, 5);
+        TaskChainCountdown.countdown(this, countdown);
         return true;
     }
 

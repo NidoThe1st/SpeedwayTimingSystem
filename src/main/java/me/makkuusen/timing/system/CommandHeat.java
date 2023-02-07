@@ -23,6 +23,7 @@ import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @CommandAlias("heat")
@@ -84,64 +86,68 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("start")
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
-    public static void onHeatStart(Player player, Heat heat) {
-        if (heat.startCountdown()) {
-            player.sendMessage("§aStarted countdown for " + heat.getName());
+    public static void onHeatStart(CommandSender sender, Heat heat, @Optional Integer countdown) {
+        if (countdown == null){
+            countdown = 5;
+        }
+
+        if (heat.startCountdown(countdown)) {
+            sender.sendMessage("§aStarted countdown for " + heat.getName());
             return;
         }
-        player.sendMessage("§cCouldn't start " + heat.getName());
+        sender.sendMessage("§cCouldn't start " + heat.getName());
     }
 
     @Subcommand("finish")
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
-    public static void onHeatFinish(Player player, Heat heat) {
+    public static void onHeatFinish(CommandSender sender, Heat heat) {
         if (heat.finishHeat()) {
-            player.sendMessage("§aFinished " + heat.getName());
+            sender.sendMessage("§aFinished " + heat.getName());
             return;
         }
-        player.sendMessage("§cCouldn't finish " + heat.getName());
+        sender.sendMessage("§cCouldn't finish " + heat.getName());
         return;
     }
 
     @Subcommand("load")
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
-    public static void onHeatLoad(Player player, Heat heat) {
+    public static void onHeatLoad(CommandSender sender, Heat heat) {
         if (heat.loadHeat()) {
             EventAnnouncements.broadcastSpectate(heat.getEvent());
-            player.sendMessage("§aLoaded " + heat.getName());
+            sender.sendMessage("§aLoaded " + heat.getName());
             return;
         }
-        player.sendMessage("§cCouldn't load " + heat.getName());
+        sender.sendMessage("§cCouldn't load " + heat.getName());
 
     }
 
     @Subcommand("reload")
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
-    public static void onHeatReload(Player player, Heat heat) {
+    public static void onHeatReload(CommandSender sender, Heat heat) {
         if (heat.resetHeat()) {
             if (heat.loadHeat()) {
-                player.sendMessage("§aReloaded " + heat.getName());
+                sender.sendMessage("§aReloaded " + heat.getName());
                 return;
             }
-            player.sendMessage("§cCouldn't load " + heat.getName());
+            sender.sendMessage("§cCouldn't load " + heat.getName());
             return;
         }
-        player.sendMessage("§cCouldn't reset " + heat.getName());
+        sender.sendMessage("§cCouldn't reset " + heat.getName());
     }
 
     @Subcommand("reset")
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
-    public static void onHeatReset(Player player, Heat heat) {
+    public static void onHeatReset(CommandSender sender, Heat heat) {
         if (heat.resetHeat()){
             EventAnnouncements.broadcastReset(heat);
-            player.sendMessage("§aReset " + heat.getName());
+            sender.sendMessage("§aReset " + heat.getName());
             return;
         }
-        player.sendMessage("§cCould not reset " + heat.getName());
+        sender.sendMessage("§cCould not reset " + heat.getName());
         return;
     }
 
@@ -175,6 +181,31 @@ public class CommandHeat extends BaseCommand {
         }
         round.createHeat(round.getHeats().size() + 1);
         player.sendMessage("§aCreated heat for " + round.getDisplayName());
+    }
+
+    @Subcommand("createall")
+    @CommandCompletion("@round")
+    @CommandPermission("event.admin")
+    public static void onAllHeatCreate(Player player, Round round,Integer heatNumber, @Optional Event event){
+
+        if (event == null) {
+            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+            if (maybeEvent.isPresent()) {
+                event = maybeEvent.get();
+            } else {
+                player.sendMessage("§cYou have no event selected, /event select <name>");
+                return;
+            }
+        }
+        if (event.getTrack() == null) {
+            player.sendMessage("§cYour event needs a track, /event set track <name>");
+            return;
+        }
+        AtomicInteger i = new AtomicInteger(0);
+        while (i.getAndAdd(1) < heatNumber){
+            round.createHeat(round.getHeats().size() + 1);
+        }
+        player.sendMessage("§aCreated " + heatNumber + " heats for " + round.getDisplayName());
     }
 
     @Subcommand("set laps")
