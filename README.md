@@ -21,3 +21,9 @@ If you need support. Look for #support in our discord.
 http://discord.boatlabs.net
 
 Timing System was originally forked from [EpicIceTrack](https://github.com/JustBru00/NetherCubeParkour).
+
+## SpeedwayTimingSystem
+
+This plugin is a fork from TimingSystem.
+
+It is made for the Polish community of Speedway racers to better suit their style of running events.
