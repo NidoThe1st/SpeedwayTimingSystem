@@ -24,9 +24,11 @@ import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -86,9 +88,13 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("start")
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
-    public static void onHeatStart(CommandSender sender, Heat heat, @Optional Integer countdown) {
+    public static void onHeatStart(CommandSender sender, Heat heat, @Optional Event event, @Optional Integer countdown) {
         if (countdown == null){
             countdown = 5;
+        }
+
+        if (sender instanceof ConsoleCommandSender){
+
         }
 
         if (heat.startCountdown(countdown)) {
@@ -183,10 +189,10 @@ public class CommandHeat extends BaseCommand {
         player.sendMessage("§aCreated heat for " + round.getDisplayName());
     }
 
-    @Subcommand("createall")
-    @CommandCompletion("@round")
+    @Subcommand("createmultiple")
+    @CommandCompletion("@round <number>")
     @CommandPermission("event.admin")
-    public static void onAllHeatCreate(Player player, Round round,Integer heatNumber, @Optional Event event){
+    public static void onCreateMultipleHeats(Player player, Round round,Integer heatNumber, @Optional Event event){
 
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
@@ -206,6 +212,30 @@ public class CommandHeat extends BaseCommand {
             round.createHeat(round.getHeats().size() + 1);
         }
         player.sendMessage("§aCreated " + heatNumber + " heats for " + round.getDisplayName());
+    }
+
+    @Subcommand("createpackage")
+    @CommandCompletion("<number>")
+    @CommandPermission("event.admin")
+    public static void onCreatePackage(Player player, Integer numberOfPackages, @Optional Event event){
+        if (event == null) {
+            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+            if (maybeEvent.isPresent()) {
+                event = maybeEvent.get();
+            } else {
+                player.sendMessage("§cYou have no event selected, /event select <name>");
+                return;
+            }
+        }
+        if (event.getTrack() == null) {
+            player.sendMessage("§cYour event needs a track, /event set track <name>");
+            return;
+        }
+
+        AtomicInteger i = new AtomicInteger(0);
+        while (i.getAndAdd(1) < numberOfPackages){
+
+        }
     }
 
     @Subcommand("set laps")

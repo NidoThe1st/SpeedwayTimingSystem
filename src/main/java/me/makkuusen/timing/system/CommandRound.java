@@ -10,6 +10,7 @@ import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.event.EventResults;
+import me.makkuusen.timing.system.event.EventSchedule;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
@@ -18,6 +19,7 @@ import me.makkuusen.timing.system.round.RoundType;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @CommandAlias("round")
 public class CommandRound extends BaseCommand {
@@ -65,6 +67,73 @@ public class CommandRound extends BaseCommand {
         if (EventDatabase.roundNew(event, roundType, event.getEventSchedule().getRounds().size() + 1)) {
             player.sendMessage("§aCreated " + roundType.name() + " round.");
             return;
+        }
+        player.sendMessage("§cCould not create new round");
+    }
+
+    @Subcommand("createmultiple")
+    @CommandCompletion("@roundType <number>")
+    @CommandPermission("event.admin")
+    public static void onCreateMultiple(Player player, RoundType roundType,Integer roundNumber, @Optional Event event) {
+        if (event == null) {
+            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+            if (maybeEvent.isPresent()) {
+                event = maybeEvent.get();
+            } else {
+                player.sendMessage("§cYou have no event selected");
+                return;
+            }
+        }
+
+        if (event.getTrack() == null) {
+            player.sendMessage("§cYou need to select a track first");
+            return;
+        }
+        if (event.getTrack().isStage() && roundType.equals(RoundType.QUALIFICATION)) {
+            player.sendMessage("§cThis track does not support qualification");
+            return;
+        }
+        AtomicInteger i = new AtomicInteger(0);
+        while (i.getAndAdd(1) < roundNumber){
+            if (EventDatabase.roundNew(event, roundType, event.getEventSchedule().getRounds().size() + 1)) {
+            }
+            else {player.sendMessage("§cCould not create new round");}
+        }
+        player.sendMessage("§aCreated " + roundNumber + " " + roundType.name() + " rounds.");
+        List<Round> rounds = event.getEventSchedule().getRounds();
+        for (Round r: rounds) {
+            r.createHeat(1);
+        }
+
+    }
+
+    @Subcommand("createpackage")
+    @CommandCompletion("@roundType <number>")
+    @CommandPermission("event.admin")
+    public static void onCreatePackage(Player player, RoundType roundType,Integer roundNumber, @Optional Event event) {
+        if (event == null) {
+            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+            if (maybeEvent.isPresent()) {
+                event = maybeEvent.get();
+            } else {
+                player.sendMessage("§cYou have no event selected");
+                return;
+            }
+        }
+
+        if (event.getTrack() == null) {
+            player.sendMessage("§cYou need to select a track first");
+            return;
+        }
+        if (event.getTrack().isStage() && roundType.equals(RoundType.QUALIFICATION)) {
+            player.sendMessage("§cThis track does not support qualification");
+            return;
+        }
+        AtomicInteger i = new AtomicInteger(1);
+        while (i.getAndAdd(1) < roundNumber){
+            if (EventDatabase.roundNew(event, roundType, event.getEventSchedule().getRounds().size() + 1)) {
+                player.sendMessage("§aCreated " + roundType.name() + " round.");
+            }
         }
         player.sendMessage("§cCould not create new round");
     }
