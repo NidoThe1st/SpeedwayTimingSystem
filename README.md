@@ -27,3 +27,18 @@ Timing System was originally forked from [EpicIceTrack](https://github.com/JustB
 This plugin is a fork from TimingSystem.
 
 It is made for the Polish community of Speedway racers to better suit their style of running events.
+
+## BASIC EVENT SETUP
+1. /event create [name]
+
+2. /event set track [track]
+
+3. /round createmultiple [type] <number> - This will automatically make the <number> of rounds with heats in them
+
+4. /heat set laps <number> [heat]
+
+5. /heat set pits <number> [heat] - In speedway this is usually zero
+
+6. /heat load [heat]
+
+7. /heat start [heat] <countdown> - If put at 0, there will be no countdown
