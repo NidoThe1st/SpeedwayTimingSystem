@@ -33,11 +33,11 @@ It is made for the Polish community of Speedway racers to better suit their styl
 
 2. /event set track [track]
 
-3. /round createmultiple [type] <number> - This will automatically make the <number> of rounds with heats in them
+3. /round createmultiple [type] [number] - This will automatically make the [number] of rounds with heats in them
 
-4. /heat set laps <number> [heat]
+4. /heat set laps [number] [heat]
 
-5. /heat set pits <number> [heat] - In speedway this is usually zero
+5. /heat set pits [number] [heat] - In speedway this is usually zero
 
 6. /heat load [heat]
 
